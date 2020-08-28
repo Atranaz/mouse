@@ -4,19 +4,11 @@ const path = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 
-var http = require("http");
-var io = require("socket.io")(http);
-
 const indexRouter = require("./routes/index");
 const outputRouter = require("./routes/output");
 const usersRouter = require("./routes/users");
 
 const app = express();
-
-// socket
-io.on("connection", (socket) => {
-  console.log("a user connected");
-});
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
