@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+
+    <link rel="stylesheet" href="/stylesheets/style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="row">
+        <div class="col">
+          <img id="mouseme" src="images/cursor.png" alt="cursor" width="32" />
+          <div class="btn-group" role="group" aria-label="Basic example">
+            <button type="button" id="play" class="btn btn-success">
+              Play
+            </button>
+            <button type="button" id="stopme" class="btn btn-danger" disabled>
+              Stop
+            </button>
+
+            <button type="button" id="startrecording" class="btn btn-warning">
+              Start Record
+            </button>
+            <button
+              type="button"
+              id="stoprecording"
+              class="btn btn-danger"
+              disabled
+            >
+              Stop Recording
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+  <script>
+    let play = document.getElementById("play"),
+      stopme = document.getElementById("stopme"),
+      startrecording = document.getElementById("startrecording"),
+      stoprecording = document.getElementById("stoprecording"),
+      playrecord = document.getElementById("playrecord");
+
+    var mouseImg = document.getElementById("mouseme"),
+      moving = false,
+      frames = [],
+      user_data = {},
+      state = 1; // 1 is stop and 2 is start
+
+    play.addEventListener("mousedown", initialClick, false);
+    stopme.addEventListener("mousedown", stopMovment, false);
+    startrecording.addEventListener("mousedown", startRecording, false);
+    stoprecording.addEventListener("mousedown", stopRecording, false);
+
+    function initialClick(e) {
+      moving = !moving;
+      image = mouseImg;
+      play.disabled = true;
+      stopme.disabled = false;
+      document.addEventListener("mousemove", move, false);
+    }
+    function stopMovment() {
+      if (moving) {
+        document.removeEventListener("mousemove", move);
+        moving = !moving;
+        play.disabled = false;
+        stopme.disabled = true;
+        return;
+      }
+    }
+    function startRecording(e) {
+      state = 2;
+      user_data.starttime = new Date().getTime() / 1000;
+      stoprecording.disabled = false;
+      startrecording.disabled = true;
+    }
+    function stopRecording() {
+      if (moving) {
+        document.removeEventListener("mousemove", move);
+        moving = !moving;
+        state = 1;
+        user_data.endtime = new Date().getTime() / 1000;
+        startrecording.disabled = false;
+        stoprecording.disabled = true;
+        play.disabled = false;
+        stopme.disabled = true;
+        saveData();
+        return;
+      }
+    }
+
+    function move(e) {
+      var newX = e.clientX - 30;
+      var newY = e.clientY - 30;
+
+      image.style.left = newX + "px";
+      image.style.top = newY + "px";
+
+      if (state === 2) {
+        frames.push([newX, newY]);
+        //console.log(frames);
+      }
+    }
+
+    function saveData() {
+      user_data.frames = frames;
+
+      if (frames.length >= 0) {
+        fetch("/users", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(user_data),
+        })
+          .then((response) => {
+            frames.splice(0, frames.length);
+            for (let prop in user_data) {
+              delete user_data[prop];
+            }
+          })
+
+          .catch((error) => {
+            console.error("Error:", error);
+          });
+      } else {
+        console.log("record first");
+      }
+    }
+
+    //initialClick();
+  </script>
+</html>

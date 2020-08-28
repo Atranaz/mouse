@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+
+    <link rel="stylesheet" href="/stylesheets/style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="row">
+        <div class="col">
+          <img id="mouseme" src="images/cursor.png" alt="cursor" width="32" />
+          <div class="btn-group" role="group" aria-label="Basic example">
+            <button type="button" id="playrecord" class="btn btn-success">
+              Play from record
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+  <script>
+    var mouseImg = document.getElementById("mouseme"),
+      playrecord = document.getElementById("playrecord");
+
+    playrecord.addEventListener("mousedown", playfromrecord, false);
+
+    function playfromrecord() {
+      fetch("/users", {
+        method: "get",
+      })
+        .then((response) => response.json())
+        .then((jsonData) => {
+          playrecord.disabled = true;
+          image = mouseImg;
+          let move_data = jsonData.newdata;
+          let play_time = (jsonData.end_time - jsonData.start_time) * 3;
+          move_data.forEach((element, i) => {
+            setTimeout(function () {
+              image.style.display = "block";
+              image.style.left = element[0] + "px";
+              image.style.top = element[1] + "px";
+
+              if (i == move_data.length) {
+                image.style.display = "none";
+                image.style.top = "0px";
+
+                playrecord.disabled = false;
+              }
+            }, play_time * i++);
+          });
+        })
+        .catch((err) => {
+          //error block
+        });
+    }
+  </script>
+</html>
