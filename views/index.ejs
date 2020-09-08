@@ -59,6 +59,7 @@
       stopme.disabled = false;
       document.addEventListener("mousemove", move, false);
     }
+    
     function stopMovment() {
       if (moving) {
         document.removeEventListener("mousemove", move);
@@ -68,12 +69,14 @@
         return;
       }
     }
+    
     function startRecording(e) {
       state = 2;
       user_data.starttime = new Date().getTime() / 1000;
       stoprecording.disabled = false;
       startrecording.disabled = true;
     }
+    
     function stopRecording() {
       if (moving) {
         document.removeEventListener("mousemove", move);
@@ -129,5 +132,9 @@
     }
 
     //initialClick();
+  </script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var socket = io();
   </script>
 </html>

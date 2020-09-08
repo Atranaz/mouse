@@ -4,6 +4,9 @@ const path = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 
+var http = require("http");
+var socketio = require("socket.io");
+
 const indexRouter = require("./routes/index");
 const outputRouter = require("./routes/output");
 const usersRouter = require("./routes/users");
@@ -24,6 +27,15 @@ app.use("/", indexRouter);
 app.use("/output", outputRouter);
 app.use("/users", usersRouter);
 
+const server = require("http").createServer(app);
+const io = socketio(server);
+io.on("connection", (socket) => {
+  console.log("a user connected");
+  socket.on("disconnect", () => {
+    console.log("user disconnected");
+  });
+});
+
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
   next(createError(404));
@@ -40,4 +52,4 @@ app.use(function (err, req, res, next) {
   res.render("error");
 });
 
-module.exports = app;
+module.exports = { app: app, server: server };
